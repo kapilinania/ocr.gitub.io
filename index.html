@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OCR Tool</title>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+<body>
+    <h1>OCR Tool</h1>
+    <input type="file" accept="image/*" id="imageInput">
+    <button onclick="displayImage()">Display Image</button>
+    <button onclick="performOCR()">Perform OCR</button>
+    <div id="imageContainer"></div>
+    <div id="ocrResult"></div>
+
+    <script>
+        function displayImage() {
+            const input = document.getElementById('imageInput');
+            const file = input.files[0];
+            const reader = new FileReader();
+
+            reader.onload = function(e) {
+                const imageContainer = document.getElementById('imageContainer');
+                imageContainer.innerHTML = `<img src="${e.target.result}" alt="Chosen Image" style="max-width: 100%;">`;
+            };
+
+            reader.readAsDataURL(file);
+        }
+
+        async function performOCR() {
+            const imageContainer = document.getElementById('imageContainer');
+            const image = imageContainer.querySelector('img');
+            if (!image) {
+                alert('Please choose an image first.');
+                return;
+            }
+
+            const { data: { text } } = await Tesseract.recognize(
+                image.src,
+                'eng',
+                { logger: m => console.log(m) }
+            );
+
+            const ocrResult = document.getElementById('ocrResult');
+            ocrResult.innerText = text;
+        }
+    </script>
+</body>
+</html>

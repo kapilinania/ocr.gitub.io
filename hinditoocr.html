@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hindi Jpg to OCR</title>
+    <style>
+        .container {
+            display: flex;
+            flex-direction: row;
+        }
+        .images {
+            flex: 1;
+            padding: 10px;
+        }
+        .text {
+            flex: 1;
+            padding: 10px;
+        }
+        .image {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 10px;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</head>
+<body>
+    <a href="hinditoocr.html">For Hindi Content ocr</a>
+    <a href="pdftoocr.html">Multipal Images to ocr</a>
+    <div class="container">
+        <div class="images" id="imageContainer"></div>
+        <div class="text" id="ocrResult"></div>
+    </div>
+    
+    <input type="file" accept="image/*" id="imageInput" multiple>
+    <button onclick="previewImages()">Preview Images</button>
+    <button onclick="performOCR()">Perform OCR</button>
+
+    <script>
+        function previewImages() {
+            const input = document.getElementById('imageInput');
+            const files = input.files;
+
+            if (files.length === 0) {
+                alert('Please choose at least one image.');
+                return;
+            }
+
+            const imageContainer = document.getElementById('imageContainer');
+            imageContainer.innerHTML = '';
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    imageContainer.innerHTML += `<img src="${e.target.result}" alt="Chosen Image ${i + 1}" class="image">`;
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+
+        async function performOCR() {
+            const input = document.getElementById('imageInput');
+            const files = input.files;
+
+            if (files.length === 0) {
+                alert('Please choose at least one image.');
+                return;
+            }
+
+            const ocrResult = document.getElementById('ocrResult');
+            ocrResult.innerHTML = '';
+
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                const reader = new FileReader();
+
+                reader.onload = async function(e) {
+                    const { data: { text } } = await Tesseract.recognize(
+                        e.target.result,
+                        'hin', // Language code for Hindi
+                        { logger: m => console.log(m) }
+                    );
+                    ocrResult.innerHTML += `<p>OCR Result for Image ${i + 1}: ${text}</p>`;
+                };
+
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+</body>
+</html>
